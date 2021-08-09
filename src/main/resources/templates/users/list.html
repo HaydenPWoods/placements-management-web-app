@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Users - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <h1>Users</h1>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <div class="row justify-content-center">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Role</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${userList}" th:href="${'/users/' + user.getUsername()}">
+                    <td class="clickable vertical-align-middle profile-image-cell"
+                        th:href="${'/users/' + user.getUsername()}">
+                        <img class="rounded-circle" th:src="${'/users/' + user.getUsername() + '/profilePicture'}"
+                             th:alt="${'Profile picture for ' + user.getUsername()}" height="32"/>
+                    </td>
+                    <th class="clickable vertical-align-middle" th:href="${'/users/' + user.getUsername()}" scope="row"
+                        th:text="${user.getUsername()}"></th>
+                    <td class="clickable vertical-align-middle" th:href="${'/users/' + user.getUsername()}"
+                        th:text="${user.getFullName()}"></td>
+                    <td class="text-break vertical-align-middle">
+                        <a th:href="${'mailto:' + user.getEmail()}" th:text="${user.getEmail()}"></a>
+                    </td>
+                    <td class="clickable vertical-align-middle" th:href="${'/users/' + user.getUsername()}"
+                        th:text="${user.getRole().toString()}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="btn-group" role="group" aria-label="Pagination" th:if="${totalUsers > 0}">
+            <th:block th:each="pageNum: ${#numbers.sequence(1, totalPages)}">
+                <a th:if="${pageNum == currentPage}" type="button" class="btn btn-outline-primary" th:text="${pageNum}"
+                   th:href="${#request.getServletPath() + '?page=' + pageNum}"></a>
+                <a th:unless="${pageNum == currentPage}" type="button" class="btn btn-primary" th:text="${pageNum}"
+                   th:href="${#request.getServletPath() + '?page=' + pageNum}"></a>
+            </th:block>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/request-row-link.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

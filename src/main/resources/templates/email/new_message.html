@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New Message Received - Placements Management Web App</title>
+</head>
+<body>
+<table style="width: 600px; margin-left: auto; margin-right: auto">
+    <tr>
+        <td>
+            <a th:href="${ACTION_URL}">
+                <!-- Bootstrap Icons: briefcase-fill, https://icons.getbootstrap.com/icons/briefcase-fill/.
+                     Copyright (c) 2019-2020 The Bootstrap Authors.
+                     Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                <img src="https://i.postimg.cc/dQgNdb05/email-header.png" alt="Placements Management Web App"/>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: center">
+            <!-- Bootstrap Icons: chat-dots-fill, https://icons.getbootstrap.com/icons/chat-dots-fill/.
+                 Copyright (c) 2019-2020 The Bootstrap Authors.
+                 Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+            <img src="https://i.postimg.cc/fWVgVzM3/chat-dots-fill-blue.png" height="64" width="64" alt="Chat Bubble Icon" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <h1 style="font-family: Arial, sans-serif; color: #363636; text-align: center">New message received!</h1>
+            <p style="font-family: Arial, sans-serif; color: #363636">
+                You have received a new message from <span th:text="${message.getSender().getFullName()}">USER</span>:
+            </p>
+            <p style="font-family: Arial, sans-serif; color: #363636; text-align: center">
+                "<span th:text="${message.getContent(encryptPassword)}">Lorem ipsum...</span>"
+            </p>
+            <p style="font-family: Arial, sans-serif; color: #363636">
+                Login to the application to reply to this message.
+            </p>
+            <a style="font-family: Arial, sans-serif; padding: 5px; background-color: #0067B0; color: #ffffff" th:href="${ACTION_URL}">Login</a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <small style="font-family: Arial, sans-serif; color: #363636">
+                To avoid spam, you will not receive email notifications for new messages for the next 12 hours. You will
+                continue to receive other email notifications. If you no longer wish to receive these emails, you can
+                opt-out by logging in to your account, going to your profile, clicking "Edit Account Details", and
+                revoking the permission.
+            </small>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

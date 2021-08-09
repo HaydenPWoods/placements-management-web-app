@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${'Visits for Placement #' + placement.getId() + ' - Placements Management Web App'}"></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Placement Visits</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row">
+        <div class="col">
+            <p class="text-center">Showing visits for placement
+                <a th:href="${'/placements/' + placement.getId()}"
+                   th:text="${'#' + placement.getId() + ' - ' + placement.getTitle()}"></a>
+            </p>
+        </div>
+    </div>
+    <div class="row" th:if="${placement.getVisits().isEmpty()}">
+        <div class="col">
+            <p class="text-center">
+                No visits scheduled for the selected placement.
+                <span th:if="${user.getRole().toString().equals('TUTOR') && placement.getMembers().contains(user)}">
+                    Schedule a visit from the button in the Options menu of the placement, or generate a suggested visit
+                    for the placement (Visits -> Generate Suggested Visits).
+                </span>
+            </p>
+        </div>
+    </div>
+    <div class="row" th:unless="${placement.getVisits().isEmpty()}">
+        <div class="col">
+            <div class="table-responsive">
+                <table class="table table-hover" th:if="${!placement.getVisits().isEmpty()}">
+                    <thead>
+                    <tr>
+                        <th scope="col">Visit Date</th>
+                        <th scope="col">Organiser</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="clickable" th:each="visit: ${placement.getVisits()}"
+                        th:href="${'/placements/' + placementId + '/visits/' + visit.getId()}">
+                        <th scope="row" th:text="${visit.getVisitDateTime().toString().replace('T', ', ')}"></th>
+                        <td th:text="${visit.getOrganiser().getFullName() + ' (' + visit.getOrganiser().getUsername() + ')'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/request-row-link.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

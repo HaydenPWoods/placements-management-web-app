@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Placements Management Web App</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<div class="row justify-content-center" th:fragment="alerts">
+    <!--/* SUCCESS - COMMON */-->
+    <div class="alert alert-success" role="alert" th:if="${param.addSuccess}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/providers/'">User was successfully assigned to provider!</span>
+        <span th:case="*">Entity was successfully added!</span>
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.approved}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/requests/'">The selected authorisation request was successfully approved!</span>
+        <span th:case="'/applications/'">The selected placement application was successfully approved!</span>
+        <span th:case="*">The selected entity was successfully approved!</span>
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.deleteSuccess}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/applications'">The selected application was deleted successfully!</span>
+        <span th:case="'/applications/'">The selected document was deleted successfully from the selected application!</span>
+        <span th:case="'/providers'">The selected provider was deleted successfully!</span>
+        <span th:case="'/requests/'">The selected document was deleted successfully from the selected authorisation request!</span>
+        <span th:case="'/placements'">The selected placement was deleted successfully!</span>
+        <span th:case="'/placements/'">The selected document was deleted successfully from the selected placement!</span>
+        <span th:case="'/visits'">The selected placement visit was deleted successfully!</span>
+        <span th:case="*">The selected entity was deleted successfully!</span>
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.editSuccess}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/providers/'">Provider details were successfully edited!</span>
+        <span th:case="'/placements/'">Placement details were successfully edited!</span>
+        <span th:case="'/placements/visits/'">Visit details were successfully edited!</span>
+        <span th:case="*">Entity details were successfully edited!</span>
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.newSuccess}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/providers'">New provider was created successfully!</span>
+        <span th:case="*">Entity was created successfully!</span>
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.pictureReset}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/users/'">Profile picture was reset successfully!</span>
+        <span th:case="'/providers/'">Provider logo was reset successfully!</span>
+        <span th:case="*">Picture was reset successfully!</span>
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.pictureSet}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/users/'">Profile picture was set successfully!</span>
+        <span th:case="'/providers/'">Provider logo was set successfully!</span>
+        <span th:case="*">Picture was set successfully!</span>
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.uploadSuccess}">
+        The selected files were successfully uploaded!
+    </div>
+    <div class="alert alert-info" role="alert" th:if="${param.uploadSuccessBlockedFile}">
+        The upload was successful, but one or more files were blocked. Please do not upload executable files.
+    </div>
+
+    <!--/* SUCCESS - OTHER */-->
+    <div class="alert alert-success" role="alert" th:if="${param.addPlacementSuccess}">
+        The placement was created successfully!
+    </div>
+    <div class="alert alert-info" role="alert" th:if="${param.addPlacementSuccessBlockedFile}">
+        The placement was created successfully, but one or more uploaded files were blocked and have not been uploaded.
+        Please do not upload executable files.
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.appApproved}">
+        The placement application was fully approved, and the student has been assigned to the placement!
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.applySuccess}">
+        The placement application was created successfully!
+    </div>
+    <div class="alert alert-info" role="alert" th:if="${param.applySuccessBlockedFile}">
+        The placement application was created successfully, but one or more uploaded files were blocked and have not
+        been uploaded. Please do not upload executable files.
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.detailssuccess}">
+        Your account details were successfully changed!
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.mailSuccess}">
+        Your message was received successfully, and the application is now attempting to send the message to all
+        selected recipients.
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.memberRemoved}">
+        The selected member was removed from this provider!
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.requestSuccess}">
+        The authorisation request was created successfully!
+    </div>
+    <div class="alert alert-info" role="alert" th:if="${param.requestSuccessBlockedFile}">
+        The authorisation request was created successfully, but one or more uploaded files were blocked and have not
+        been uploaded. Please do not upload executable files.
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.roleChangeSuccess}">
+        The user's role was successfully changed!
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.suggestedAcceptedMany}">
+        The selected suggested placement visits were successfully accepted, and created!
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.suggestedAcceptedOne}">
+        The selected suggested placement visit was successfully accepted, and created!
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.userRemoved}">
+        The selected user was removed from this placement!
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${param.visitSuccess}">
+        A visit was successfully scheduled for the selected placement!
+    </div>
+
+    <!--/* INVALID - COMMON */-->
+    <div class="alert alert-danger" role="alert" th:if="${param.invalidAction}">
+        The action filter selected was invalid, and has not been applied.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.invalidEntity}">
+        The entity filter selected was invalid, and has not been applied.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.invalidFilters}">
+        The filters specified were invalid, and have not been applied.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.invalidId}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/applications'">Placement application with specified ID was not found!</span>
+        <span th:case="'/applications/'">Document with specified ID was not found for selected placement application!</span>
+        <span th:case="'/placements'">Placement with specified ID was not found!</span>
+        <span th:case="'/placements/'">Document with specified ID was not found for selected placement!</span>
+        <span th:case="'/placements/visits'">Visit with specified ID was not found for selected placement!</span>
+        <span th:case="'/providers'">Provider with specified ID was not found!</span>
+        <span th:case="'/requests'">Request with specified ID was not found!</span>
+        <span th:case="'/requests/'">Document with specified ID was not found for selected request!</span>
+        <span th:case="'/visits/suggested'">A placement with specified ID was not found, and the visit couldn't be scheduled.</span>
+        <span th:case="*">Entity with specified ID was not found!</span>
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.invalidPage}">
+        The page number specified was invalid.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.pictureRejected}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/users/'">The file uploaded was not a valid image file, and could not be set as a profile picture.</span>
+        <span th:case="'/providers/'">The file uploaded was not a valid image file, and could not be set as the provider logo.</span>
+        <span th:case="*">The file uploaded was not a valid image file, and could not be set as the picture.</span>
+    </div>
+
+    <!--/* INVALID - OTHER */-->
+    <div class="alert alert-warning" role="alert" th:if="${param.documentDeSync}">
+        The file associated with the requested document no longer exists on the server. It has likely been manually
+        deleted by an administrator, or the file never existed. To avoid a de-sync, the requested document has been
+        deleted. If you were the owner, you can try to re-upload it.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.documentNoRedirect}">
+        The requested document has no associated entity, so you couldn't be redirected.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.invalid}">
+        Your username and password was incorrect!
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.invalidDocumentId}">
+        A document with the specified name was not found!
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.invalidMember}">
+        The selected user is not a member of this provider!
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.invalidRole}">
+        The role selected does not exist, and could not be set as the user's role.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.nameExists}">
+        A provider with the specified name already exists!
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noPermissionSelf}">
+        You cannot change your own role!
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noRecipients}">
+        You must select at least one group of recipients.
+    </div>
+
+    <!--/* NO PERMISSION - COMMON */-->
+    <div class="alert alert-danger" role="alert" th:if="${param.noDeletePermission}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/applications/'">You do not have permission to delete the selected placement application!</span>
+        <span th:case="'/applications/documents/'">You do not have permission to delete the selected document for the selected placement application!</span>
+        <span th:case="'/requests/'">You do not have permission to delete the selected authorisation request!</span>
+        <span th:case="'/requests/documents/'">You do not have permission to delete the selected document for the selected authorisation request!</span>
+        <span th:case="'/placements/'">You do not have permission to delete the selected placement!</span>
+        <span th:case="'/placements/documents/'">You do not have permission to delete the selected document for the selected placement!</span>
+        <span th:case="'/visits/'">You do not have permission to delete the selected placement visit!</span>
+        <span th:case="*">You do not have permission to delete the selected entity!</span>
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noEditPermission}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/placements/visits/'">You do not have permission to edit the details of the selected placement visit!</span>
+        <span th:case="*">You do not have permission to edit the selected entity!</span>
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noLogPermission}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/placements/'">You do not have permission to access the activity log for the selected placement!</span>
+        <span th:case="'/requests/'">You do not have permission to access the activity log for the selected authorisation request!</span>
+        <span th:case="*">You do not have permission to access the activity log for the selected entity!</span>
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noPermission}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/applications/'">You do not have permission to approve the selected placement application!</span>
+        <span th:case="'/placements/'">You do not have permission to assign users to the selected placement!</span>
+        <span th:case="'/providers'">You do not have permission to create new providers!</span>
+        <span th:case="'/requests/approve'">You do not have permission to approve the selected authorisation request!</span>
+        <span th:case="'/visits'">You do not have permission to access suggested visits!</span>
+        <span th:case="'/visits/suggested'">You do not have permission to schedule a visit for one of the selected placements!</span>
+        <span th:case="*">You do not have permission to perform that action!</span>
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noUploadPermission}" th:switch="${#request.getServletPath().replaceAll('\/[0-9]+\/*', '/')}">
+        <span th:case="'/applications/'">You do not have permission to upload documents for the selected placement application!</span>
+        <span th:case="'/requests/'">You do not have permission to upload documents for the selected authorisation request!</span>
+        <span th:case="'/placements/'">You do not have permission to upload documents for the selected placement!</span>
+        <span th:case="*">You do not have permission to upload documents for the selected entity!</span>
+    </div>
+
+    <!--/* NO PERMISSION - OTHER */-->
+    <div class="alert alert-danger" role="alert" th:if="${param.applicationsNoPermission}">
+        You do not have permission to access placement applications!
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noDocumentPermission}">
+        You do not have permission to access the requested document!
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noMemberPermission}">
+        You do not have permission to change members of a provider!
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noPermissionDeleteSelf}">
+        You cannot delete yourself.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noProvider}">
+        You must be assigned to a provider to perform that action. Contact an administrator.
+    </div>
+    <div class="alert alert-danger" role="alert" th:if="${param.noVisitPermission}">
+        You do not have permission to access visits for the selected placement!
+    </div>
+
+</div>
+</body>
+</html>

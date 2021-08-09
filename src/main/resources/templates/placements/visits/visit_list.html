@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Placement Visits - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Placement Visits</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row" th:if="${organisedVisits.isEmpty() && placementVisits.isEmpty() && providerPlacementVisits.isEmpty()}">
+        <div class="col">
+            <p class="text-center">No visits.</p>
+        </div>
+    </div>
+    <div class="row" th:if="${organisedVisits.isEmpty() && user.getRole().toString().equals('TUTOR')}">
+        <div class="col">
+            <p class="text-center">
+                You have not scheduled any visits. To schedule a visit for a placement you are a member of, visit that
+                placement's page and click the 'Schedule Placement Visit' button from the Options menu. Any scheduled
+                visits will appear here.
+            </p>
+        </div>
+    </div>
+    <div class="row" th:unless="${organisedVisits.isEmpty()}">
+        <div class="col">
+            <h2 class="text-center">Your Organised Visits</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Visit Date</th>
+                        <th scope="col">Placement Title</th>
+                        <th scope="col">Provider</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="visit: ${organisedVisits}">
+                        <th class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            scope="row" th:text="${visit.getVisitDateTime().toString().replace('T', ', ')}"></th>
+                        <td class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            th:text="${visitPlacementMap.get(visit).getTitle()}"></td>
+                        <td class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            th:text="${visitPlacementMap.get(visit).getProvider().getName()}"></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    th:data-target="${'#deleteConfirm' + visit.getId()}"
+                                    th:if="${user == visit.getOrganiser() || user.getRole().name() == 'Administrator'}"
+                                    th:id="${'deleteVisit' + visit.getId()}">X
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:unless="${placementVisits.isEmpty()}">
+        <div class="col">
+            <h2 class="text-center">Visits For Your Placements</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Visit Date</th>
+                        <th scope="col">Placement Title</th>
+                        <th scope="col">Provider</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="visit: ${placementVisits}">
+                        <th class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            scope="row" th:text="${visit.getVisitDateTime().toString().replace('T', ', ')}"></th>
+                        <td class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            th:text="${visitPlacementMap.get(visit).getTitle()}"></td>
+                        <td class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            th:text="${visitPlacementMap.get(visit).getProvider().getName()}"></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    th:data-target="${'#deleteConfirm' + visit.getId()}"
+                                    th:if="${user == visit.getOrganiser() || user.getRole().name() == 'Administrator'}"
+                                    th:id="${'deleteVisit' + visit.getId()}">X
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:unless="${providerPlacementVisits.isEmpty()}">
+        <div class="col">
+            <h2>Visits For Your Provider's Placements</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Visit Date</th>
+                        <th scope="col">Placement Title</th>
+                        <th scope="col">Provider</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="visit: ${providerPlacementVisits}">
+                        <th class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            scope="row" th:text="${visit.getVisitDateTime().toString().replace('T', ', ')}"></th>
+                        <td class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            th:text="${visitPlacementMap.get(visit).getTitle()}"></td>
+                        <td class="clickable"
+                            th:href="${'/placements/' + visitPlacementMap.get(visit).getId() + '/visits/' + visit.getId()}"
+                            th:text="${visitPlacementMap.get(visit).getProvider().getName()}"></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    th:data-target="${'#deleteConfirm' + visit.getId()}"
+                                    th:if="${user == visit.getOrganiser() || user.getRole().name() == 'Administrator'}"
+                                    th:id="${'deleteVisit' + visit.getId()}">X
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:if="${user.getRole().toString().equals('TUTOR')}">
+        <div class="col">
+            <hr/>
+            <p class="text-center">
+                Generate suggested visit dates and times for placements you are a member of, where a visit is not
+                already scheduled by you. You can choose to accept or ignore these suggestions.
+            </p>
+            <a class="btn btn-primary btn-block btn-bottom-margin" href="/visits/suggested">Suggested Visits</a>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM DELETE VISIT MODALS -->
+<div class="modal fade" th:each="visit : ${organisedVisits}" th:id="${'deleteConfirm' + visit.getId()}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete selected document?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the selected visit at <span
+                        th:text="${visit.getVisitDateTime().toString().replace('T', ', ')}"></span>
+                    for placement '<span th:text="${visitPlacementMap.get(visit).getTitle()}"></span>'?
+                    This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/visits/' + visit.getId() + '/delete'}" method="post">
+                    <button type="submit" class="btn btn-danger" th:id="${'deleteVisit' + visit.getId()}">Delete
+                        Visit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/request-row-link.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>New Message - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <h1>New Message</h1>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <div class="row justify-content-center" id="enableNotificationsAlert" hidden>
+        <div class="alert alert-warning">Enable notifications in your browser for full messaging functionality.</div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <form th:action="@{/messaging/new}" method="post" id="messageForm">
+                <div class="form-group">
+                    <label for="recipient">Recipient</label>
+                    <select class="form-control custom-select" name="recipient" id="recipient" required>
+                        <option th:each="user : ${possibleRecipientsList}" th:value="${user.getUsername()}"
+                                th:text="${user.getUsername() + ' - ' + user.getFullName() + ' (' + user.getRole().toString() + ')'}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="content">Message Body</label>
+                    <textarea class="form-control" rows="5" cols="5" name="content" id="content" wrap="hard"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-bottom-margin" id="submitButton">Send Message</button>
+                <a class="btn btn-secondary btn-block btn-bottom-margin" href="/messaging">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

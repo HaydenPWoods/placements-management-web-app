@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Suggested Visits - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Suggested Visits</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row" th:if="${placementsWithSuggestions.isEmpty()}">
+        <div class="col">
+            <p class="text-center">
+                No suggested visits. All placements you are a member of already have at least one scheduled visit (past
+                or future) by you, or you are not a member of any placements.
+            </p>
+        </div>
+    </div>
+    <div class="row" th:unless="${placementsWithSuggestions.isEmpty()}">
+        <div class="col">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Suggested Date & Time</th>
+                        <th scope="col">Placement</th>
+                        <th scope="col">Provider</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:each="p1: ${placementLinksKeys}">
+                        <tr>
+                            <th scope="row" th:text="${possibleVisits.get(p1).toString().replace('T', ', ')}"></th>
+                            <td th:text="${p1.getTitle()}"></td>
+                            <td th:text="${p1.getProvider().getName()}"></td>
+                            <td>
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        th:data-target="${'#acceptOne' + p1.getId()}">✔
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"
+                                th:text="${possibleVisits.get(placementLinks.get(p1)).toString().replace('T', ', ')}"></th>
+                            <td th:text="${placementLinks.get(p1).getTitle()}"></td>
+                            <td th:text="${placementLinks.get(p1).getProvider().getName()}"></td>
+                            <td>
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        th:data-target="${'#acceptOne' + placementLinks.get(p1).getId()}">✔
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">Driving time between the above two placements is
+                                <span th:text="${placementToPlacement.get(p1, placementLinks.get(p1)).toHoursPart()}"></span>
+                                hours, <span
+                                        th:text="${placementToPlacement.get(p1, placementLinks.get(p1)).toMinutesPart()}"></span>
+                                minutes.
+                            </td>
+                            <td colspan="2">
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        th:data-target="${'#acceptBoth' + p1.getId() + 'and' + placementLinks.get(p1).getId()}">
+                                    Accept Both ✔
+                                </button>
+                            </td>
+                        </tr>
+                    </th:block>
+                    <tr th:each="p : ${individualPlacements}">
+                        <th scope="row" th:text="${possibleVisits.get(p).toString().replace('T', ', ')}"></th>
+                        <td th:text="${p.getTitle()}"></td>
+                        <td th:text="${p.getProvider().getName()}"></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    th:data-target="${'#acceptOne' + p.getId()}">✔
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row" th:unless="${placementsWithSuggestions.isEmpty()}">
+        <div class="col">
+            <button type="button" class="btn btn-primary btn-block btn-bottom-margin" data-toggle="modal"
+                    data-target="#acceptAll">
+                Accept All Suggestions
+            </button>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM ACCEPT ONE SUGGESTED VISIT MODALS -->
+<div class="modal fade" th:each="placement : ${placementsWithSuggestions}" th:id="${'acceptOne' + placement.getId()}"
+     tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Accept selected visit suggestion?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to accept the selected visit suggestion at
+                    <span th:text="${possibleVisits.get(placement).toString().replace('T', ', ')}"></span>
+                    for placement '<span th:text="${placement.getTitle()}"></span>'?
+                    This will create the visit, and will affect any future visit suggestions.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/visits/suggested/acceptOne'}" method="post">
+                    <input hidden type="number" th:value="${placement.getId()}" name="placementId"/>
+                    <input hidden type="date" th:value="${possibleVisits.get(placement).toLocalDate()}"
+                           name="visitDate"/>
+                    <input hidden type="time" th:value="${possibleVisits.get(placement).toLocalTime()}"
+                           name="visitTime"/>
+                    <button type="submit" class="btn btn-primary" th:id="${'acceptOne' + placement.getId()}">
+                        Accept Visit Suggestion
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM ACCEPT BOTH SUGGESTED VISITS MODALS -->
+<div class="modal fade" th:each="p1 : ${placementLinksKeys}"
+     th:id="${'acceptBoth' + p1.getId() + 'and' + placementLinks.get(p1).getId()}"
+     tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Accept selected visit suggestions?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to accept the following visit suggestions? :</p>
+                <ul>
+                    <li th:text="${possibleVisits.get(p1) + ' for placement ' + p1.getTitle()}"></li>
+                    <li th:text="${possibleVisits.get(placementLinks.get(p1)) + ' for placement ' + placementLinks.get(p1).getTitle()}"></li>
+                </ul>
+                <p>This will create the visits, and will affect any future visit suggestions.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/visits/suggested/acceptMany'}" method="post">
+                    <input hidden type="number" th:value="${p1.getId()}" name="placementId"/>
+                    <input hidden type="date" th:value="${possibleVisits.get(p1).toLocalDate()}"
+                           name="visitDate"/>
+                    <input hidden type="time" th:value="${possibleVisits.get(p1).toLocalTime()}"
+                           name="visitTime"/>
+                    <input hidden type="number" th:value="${placementLinks.get(p1).getId()}" name="placementId"/>
+                    <input hidden type="date" th:value="${possibleVisits.get(placementLinks.get(p1)).toLocalDate()}"
+                           name="visitDate"/>
+                    <input hidden type="time" th:value="${possibleVisits.get(placementLinks.get(p1)).toLocalTime()}"
+                           name="visitTime"/>
+                    <button type="submit" class="btn btn-primary"
+                            th:id="${'acceptBoth' + p1.getId() + 'and' + placementLinks.get(p1).getId()}">
+                        Accept Visit Suggestions
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM ACCEPT ALL SUGGESTED VISITS MODALS -->
+<div class="modal fade" id="acceptAll" tabindex="-1" th:if="${!placementsWithSuggestions.isEmpty()}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Accept all visit suggestions?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to accept all placement visit suggestions? This will create all the visits,
+                    and will affect any future visit suggestions for new placements you are assigned to.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/visits/suggested/acceptMany'}" method="post">
+                    <div th:each="placement : ${placementsWithSuggestions}">
+                        <input hidden type="number" th:value="${placement.getId()}" name="placementId"/>
+                        <input hidden type="date" th:value="${possibleVisits.get(placement).toLocalDate()}"
+                               name="visitDate"/>
+                        <input hidden type="time" th:value="${possibleVisits.get(placement).toLocalTime()}"
+                               name="visitTime"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:id="${'acceptAll'}">
+                        Accept All Suggestions
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+# Remove .template extension from this file once configured!
+
+# ===== Database Configuration =====
+# For spring.datasource.url, the url format is: jdbc:mysql://HOST_NAME:PORT/SCHEMA_NAME
+# The default PORT is 3306 for MySQL.
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://HOST_NAME:PORT/SCHEMA_NAME
+spring.datasource.username=XXXXXXXX
+spring.datasource.password=XXXXXXXX
+spring.datasource.hikari.max-lifetime=585000
+
+# ===== File Upload Configuration =====
+# Sets hard limits for the size of files that can be uploaded - both individually, and for the whole request where
+# multiple files are uploaded. If the file size and request size limit is changed from the currently set 10MB, the check
+# made in resources/static/js/files-size-check.js will need to be updated to reflect this change, and allow users to
+# submit files up or down to the new limit.
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+spring.servlet.multipart.enabled=true
+
+# ===== Google Maps API Configuration =====
+# Sets the API keys for the Google Maps API, used when calling the API for geocoding addresses and showing maps.
+gmaps.api.server-key=XXXXXXXX
+gmaps.api.client-key=XXXXXXXX
+
+# ===== Mail Server Configuration =====
+# Sets the SMTP connection details for the mail server, used in the sending of email notifications to users who have
+# explicitly allowed them.
+spring.mail.host=XXXXXXXX
+spring.mail.port=587
+spring.mail.username=XXXXXXXX
+spring.mail.password=XXXXXXXX
+spring.mail.action-url=https://localhost:8443/
+
+# ===== Message Encryption Configuration =====
+# Sets the password used for message encryption, so messages are not stored in plain text in the database. If this
+# password is changed, existing messages will no longer be able to be decrypted and need to be deleted from the
+# database.
+spring.textencryptor.password=XXXXXXXX
+
+# ===== Server Configuration =====
+# Assigning a port number for the application to run on, and configuring the SSL certificate to allow encrypted HTTPS
+# connections to the application.
+server.port=8443
+server.ssl.key-store=classpath:XXXXXXXX.XXX
+server.ssl.key-store-password=XXXXXXXX
+server.ssl.key-store-type=PKCS12
+server.ssl.key-alias=XXXXXXXX
+
+# ===== Miscellaneous =====
+#logging.level.org.springframework.web=DEBUG
+#spring.mvc.log-request-details=true

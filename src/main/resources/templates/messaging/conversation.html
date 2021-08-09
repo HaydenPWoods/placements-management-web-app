@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${'Conversation with ' + u2.getUsername() + ' - Placements Management Web App'}"></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Conversation with <span th:text="${u2.getFullName()}"></span></h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <div class="row justify-content-center" id="enableNotificationsAlert" hidden>
+        <div class="alert alert-warning">Enable notifications in your browser for full messaging functionality.</div>
+    </div>
+    <hr/>
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <a class="btn btn-primary" type="button" th:href="${'/messaging/user/' + u2.getUsername() + '?page=' + (currentPage + 1)}"
+               th:if="${currentPage + 1 <= totalPages}">Older Messages</a>
+            <a class="btn btn-primary" type="button" th:href="${'/messaging/user/' + u2.getUsername() + '?page=' + (currentPage - 1)}"
+               th:if="${currentPage - 1 > 0}">Newer Messages</a>
+        </div>
+    </div>
+    <hr th:if="${totalPages > 1}"/>
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">From</th>
+                    <th scope="col">Message</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody id="messageRows">
+                <tr th:each="message : ${messages}">
+                    <th scope="row" th:text="${message.getSender().getUsername()}"></th>
+                    <td>
+                        <span class="text-break" th:text="${message.getContent(encryptPassword) + ' '}"></span>
+                        <span class="font-weight-lighter font-italic date-stamp" th:text="${message.getTimestamp().toLocalDate().toString() + ', ' + message.getTimestamp().toLocalTime().toString()}"></span>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                th:data-target="${'#deleteConfirm' + message.getId()}"
+                                th:if="${user == message.getSender()}"
+                                th:id="${'deleteMessage' + message.getId()}">X
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <hr/>
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="alert alert-primary" role="alert" id="newMessageAlert" hidden>
+                A new message has been received. Continue your message, or <a th:href="${'/messaging/user/' + u2Username}">click to reload.</a>
+                Enable notifications to automatically retrieve new messages.
+            </div>
+            <div class="alert alert-primary" role="alert" id="conversationUpdateAlert" hidden>
+                The conversation has been updated by <span th:text="${u2Username}"></span>. Continue your message, or
+                <a th:href="${'/messaging/user/' + u2Username}">click to reload.</a>
+            </div>
+            <form th:action="@{/messaging/new}" method="post" id="messageForm">
+                <input type="text" name="recipient" id="recipient" hidden th:value="${u2.getUsername()}" />
+                <div class="form-group">
+                    <label for="content">Reply</label>
+                    <textarea class="form-control" rows="5" cols="5" name="content" id="content" wrap="hard" th:autofocus="${currentPage == 1}"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-bottom-margin" id="submitButton">Send Message</button>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM DELETE MESSAGE MODALS -->
+<div class="modal fade" th:each="message : ${messages}" th:id="${'deleteConfirm' + message.getId()}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete selected message?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the selected message? This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/messaging/delete'}" method="post">
+                    <input type="text" name="messageId" id="messageId" hidden th:value="${message.getId()}">
+                    <button type="submit" class="btn btn-danger" th:id="${'deleteMessage' + message.getId()}">
+                        Delete Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+<script src="/js/messaging-fallback.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Placements Management Web App</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row align-items-center">
+        <div class="col-md text-center">
+            <h2>Welcome, <span th:text="${user.getFullName()}"></span>!</h2>
+            <p class="small">Not you? <a href="/logout">Click here</a> to logout.</p>
+            <div class="alert alert-info" role="alert">
+                <span th:text="${user.getRole().toString()}"></span> Access
+            </div>
+            <p>Use the links in the navigation bar above to access available areas of the application. On mobile, you
+            can expand the menu links by clicking the icon in the top right corner.</p>
+        </div>
+        <div class="col-md text-center">
+            <div class="alert alert-info" role="alert" th:if="${user.getRole().toString().equals('GRADUATE')}">
+                As a graduate, your account has now been "frozen." You can view any placements you were a member of,
+                any requests you made, and any other remaining logs for your activity on the application - but you can
+                no longer interact with the application, like applying for a placement, for example.
+            </div>
+            <div class="alert alert-info" role="alert" th:if="${user.getRole().toString().equals('PROVIDER') && memberOfNoProvider}">
+                You have the 'member of provider' role, but are not actually a member of any listed providers. As a result,
+                use of the application will be restricted. Contact an administrator directly, or through the messaging
+                functionality, to be assigned to a provider. This message will disappear, and full functionality will
+                restore, when you are assigned to a provider.
+            </div>
+            <h2>Search</h2>
+            <p>Use the search box below to search through authorisation requests and placements related to you.</p>
+            <form th:replace="fragments/search_box :: searchbox"></form>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

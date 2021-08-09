@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Message from the Administrators - Placements Management Web App</title>
+</head>
+<body>
+<table style="width: 600px; margin-left: auto; margin-right: auto">
+    <tr>
+        <td>
+            <a th:href="${ACTION_URL}">
+                <!-- Bootstrap Icons: briefcase-fill, https://icons.getbootstrap.com/icons/briefcase-fill/.
+                     Copyright (c) 2019-2020 The Bootstrap Authors.
+                     Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                <img src="https://i.postimg.cc/dQgNdb05/email-header.png" alt="Placements Management Web App"/>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: center">
+            <!-- Bootstrap Icons: info-fill, https://icons.getbootstrap.com/icons/info-fill/.
+                 Copyright (c) 2019-2020 The Bootstrap Authors.
+                 Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+            <img src="https://i.postimg.cc/D0Md79Rd/info-circle-fill.png" height="64" width="64" alt="Info Icon" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <h1 style="font-family: Arial, sans-serif; color: #363636; text-align: center">Message from the Administrators</h1>
+            <p style="font-family: Arial, sans-serif; color: #363636">
+                Hello,
+            </p>
+            <p style="font-family: Arial, sans-serif; color: #363636">
+                This is a message from the administrators:
+            </p>
+            <p style="font-family: Arial, sans-serif; color: #363636" th:text="${message}"></p>
+            <a style="font-family: Arial, sans-serif; padding: 5px; background-color: #0067B0; color: #ffffff" th:href="${ACTION_URL}">Login</a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <small style="font-family: Arial, sans-serif; color: #363636">
+                If you no longer wish to receive these emails, you can opt-out by logging in to your account, going to
+                your profile, clicking "Edit Account Details", and revoking the permission.
+            </small>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+uploads/
+event.ics
+events/
+exports/
+src/main/resources/application.properties
+/src/main/resources/firebase-admin-sdk-config.json
+/src/main/resources/static/firebase-config.js
+/src/main/resources/placements.p12
+/release/placements-management-1.0.0-RELEASE.jar
+/src/main/java/hpw7/placements/service/GeoApiContextSingleton.java
+/release/hpw7.sql
+/release/files.zip
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/

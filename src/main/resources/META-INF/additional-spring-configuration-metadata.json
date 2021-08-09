@@ -1,0 +1,23 @@
+{
+  "properties": [
+    {
+      "name": "spring.textencryptor.password",
+      "type": "java.lang.String",
+      "description": "The password to be used for encoding messages, using the Spring Security Crypto Module TextEncryptor."
+    },
+    {
+      "name": "spring.mail.action-url",
+      "type": "java.lang.String",
+      "description": "The URL the application can be reached on. Used for linking back to the application in the email template."
+    },
+    {
+      "name": "gmaps.api.server-key",
+      "type": "java.lang.String",
+      "description": "The Google Maps API key to be used server-side. This key is private - it is not used for showing maps on the page, and hence is not sent to the client. Enable the Geocoding API and Distance Matrix API for this key."
+    },
+    {
+      "name": "gmaps.api.client-key",
+      "type": "java.lang.String",
+      "description": "The Google Maps API key to be used client-side. This key is public - it is used for showing maps on the page, so must be sent to the client in the page data. Enable the Maps JavaScript API for this key."
+    }
+  ] }

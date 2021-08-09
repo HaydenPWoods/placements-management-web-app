@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Activity Log - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Activity Log</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <p>
+                <span th:text="${logEntriesCount}"></span> log entries found.
+                <span th:if="${user.getRole().toString().equals('ADMINISTRATOR') && #request.getServletPath().equals('/log')}">
+                Showing all activities logged by the application, for all users.
+                </span>
+                <span th:if="${!user.getRole().toString().equals('ADMINISTRATOR') && #request.getServletPath().equals('/log')}">
+                Showing all activities logged by the application, performed by you.
+                </span>
+                <span th:if="${#request.getServletPath().contains('placements')}">
+                Showing all activities related to the selected placement #<span th:text="${placementId}"></span>
+                </span>
+                <span th:if="${#request.getServletPath().contains('requests')}">
+                Showing all activities related to the selected request #<span th:text="${requestId}"></span>
+                </span>
+                <span th:if="${param.action}">
+                    Filtered by action type <span th:text="${param.get('action')}"></span>.
+                </span>
+                <span th:if="${param.entity}">
+                    Filtered by entity type <span th:text="${param.get('entity')}"></span>.
+                </span>
+            </p>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <button th:if="${#request.getServletPath().equals('/log')}" type="button"
+                    class="btn btn-primary btn-bottom-margin"
+                    data-toggle="modal" data-target="#filterModal">
+                Filter by Action / Entity
+            </button>
+            <button th:unless="${#request.getServletPath().equals('/log')}" type="button"
+                    class="btn btn-primary btn-bottom-margin"
+                    data-toggle="modal" data-target="#filterModal">
+                Filter by Action
+            </button>
+            <a th:href="${#request.getServletPath() + '/export'}" type="button"
+               class="btn btn-primary btn-bottom-margin">
+                Export Activity Log
+            </a>
+            <button th:if="${#request.getServletPath().equals('/log')}" type="button"
+                    class="btn btn-primary btn-bottom-margin" data-toggle="modal"
+                    data-target="#deleteConfirm">
+                Delete All Entries
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="table-responsive">
+                <table class="table table-hover" th:if="${logEntriesCount > 0}">
+                    <thead>
+                    <tr>
+                        <th scope="col">Timestamp</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Entity</th>
+                        <th scope="col">Entity ID</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="logEntry : ${logEntries}">
+                        <th scope="row" th:text="${logEntry.getTimestamp().toString().replace('T', ', ')}"></th>
+                        <td th:text="${logEntry.getAppUser().getUsername()}"></td>
+                        <td th:text="${logEntry.getActionType().toString()}"></td>
+                        <td th:text="${logEntry.getEntityType().toString()}"></td>
+                        <td th:if="${logEntry.getEntityId() > 0}" th:switch="${logEntry.getEntityType().toString()}">
+                            <a th:case="'AUTHORISATION_REQUEST'" th:href="${'/requests/' + logEntry.getEntityId()}"
+                               th:text="${logEntry.getEntityId()}"></a>
+                            <a th:case="'DOCUMENT'" th:href="${'/documents/id/' + logEntry.getEntityId()}"
+                               th:text="${logEntry.getEntityId()}"></a>
+                            <a th:case="'PLACEMENT'" th:href="${'/placements/' + logEntry.getEntityId()}"
+                               th:text="${logEntry.getEntityId()}"></a>
+                            <a th:case="'PLACEMENT_APPLICATION'" th:href="${'/applications/' + logEntry.getEntityId()}"
+                               th:text="${logEntry.getEntityId()}"></a>
+                            <a th:case="'PLACEMENT_VISIT'" th:href="${'/visits/' + logEntry.getEntityId()}"
+                               th:text="${logEntry.getEntityId()}"></a>
+                            <a th:case="'PROVIDER'" th:href="${'/providers/' + logEntry.getEntityId()}"
+                               th:text="${logEntry.getEntityId()}"></a>
+                            <span th:case="*" th:text="${logEntry.getEntityId()}"></span>
+                        </td>
+                        <td th:unless="${logEntry.getEntityId() > 0}">-</td>
+                        <td th:text="${logEntry.getDescription()}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row justify-content-center">
+        <div class="col text-center btn-bottom-margin">
+            <div class="btn-group" role="group" aria-label="Pagination" th:if="${logEntriesCount > 0 && totalPages <= 15}">
+                <th:block th:each="pageNum: ${#numbers.sequence(1, totalPages)}"
+                          th:if="${#request.getServletPath().equals('/log')}">
+                    <a th:if="${pageNum == currentPage}" type="button" class="btn btn-outline-primary" th:text="${pageNum}"
+                       th:href="${#request.getServletPath() + '?page=' + pageNum + '&action=' + actionSelect + '&entity=' + entitySelect}"></a>
+                    <a th:unless="${pageNum == currentPage}" type="button" class="btn btn-primary" th:text="${pageNum}"
+                       th:href="${#request.getServletPath() + '?page=' + pageNum + '&action=' + actionSelect + '&entity=' + entitySelect}"></a>
+                </th:block>
+                <th:block th:each="pageNum: ${#numbers.sequence(1, totalPages)}"
+                          th:unless="${#request.getServletPath().equals('/log')}">
+                    <a th:if="${pageNum == currentPage}" type="button" class="btn btn-outline-primary" th:text="${pageNum}"
+                       th:href="${#request.getServletPath() + '?page=' + pageNum + '&action=' + actionSelect}"></a>
+                    <a th:unless="${pageNum == currentPage}" type="button" class="btn btn-primary" th:text="${pageNum}"
+                       th:href="${#request.getServletPath() + '?page=' + pageNum + '&action=' + actionSelect}"></a>
+                </th:block>
+            </div>
+            <div aria-label="Pagination" th:if="${totalPages > 15}">
+                <a th:if="${currentPage != 1}" type="button" class="btn btn-primary"
+                   th:href="${#request.getServletPath() + '?page=' + (currentPage - 1) + '&action=' + actionSelect}">
+                    Previous
+                </a>
+                <a th:if="${totalPages > 1 && currentPage != totalPages}" type="button" class="btn btn-primary"
+                   th:href="${#request.getServletPath() + '?page=' + (currentPage + 1) + '&action=' + actionSelect}">
+                    Next
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FILTERS MODAL -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Apply Filters to Log Results</h5>
+            </div>
+            <form th:action="${#request.getServletPath()}" method="get">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="action">Action</label>
+                        <select class="form-control" name="action" id="action">
+                            <option value="ALL" selected>- (All)</option>
+                            <option value="ADD_MEMBER">Add Member</option>
+                            <option value="APPROVE">Approve</option>
+                            <option value="CREATE">Create</option>
+                            <option value="DELETE">Delete</option>
+                            <option value="DOWNLOAD">Download</option>
+                            <option value="EMAIL">Email</option>
+                            <option value="GENERATE">Generate</option>
+                            <option value="REGISTER">Register</option>
+                            <option value="REMOVE_MEMBER">Remove Member</option>
+                            <option value="UPDATE">Update</option>
+                        </select>
+                    </div>
+                    <div class="form-group" th:if="${#request.getServletPath().equals('/log')}">
+                        <label for="entity">Entity Type</label>
+                        <select class="form-control" name="entity" id="entity">
+                            <option value="ALL" selected>- (All)</option>
+                            <option value="APP_USER">App User</option>
+                            <option value="AUTHORISATION_REQUEST">Authorisation Request</option>
+                            <option value="DOCUMENT">Document</option>
+                            <option value="DURATION_TO_PROVIDER">Duration to Provider</option>
+                            <option value="LOG_ENTRY">Log Entry</option>
+                            <option value="PLACEMENT">Placement</option>
+                            <option value="PLACEMENT_APPLICATION">Placement Application</option>
+                            <option value="PLACEMENT_VISIT">Placement Visit</option>
+                            <option value="PROVIDER">Provider</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="filterSubmitButton">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- DELETE ALL ENTRIES CONFIRM MODAL -->
+<div class="modal fade" id="deleteConfirm" tabindex="-1"
+     th:if="${#request.getServletPath().equals('/log') && user.getRole().toString().equals('ADMINISTRATOR')}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete all entries?</h5>
+            </div>
+            <div class="modal-body">
+                This will permanently delete all previous log entries. This action is irreversible. The action will be
+                logged.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form action="/log/delete" method="get">
+                    <button type="submit" class="btn btn-danger" id="deleteSubmitButton">Delete All</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

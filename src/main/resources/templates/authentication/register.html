@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Placements Management Web App</h1>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md text-center">
+            <h2>Register</h2>
+            <p>Use the form to register a unique account.</p>
+            <p>If you've already registered, <a href="/app-login">click here</a>.</p>
+            <p>Once registered, you will be able to login to the application with your unique credentials.</p>
+            <p><span class="font-weight-bold">University members:</span> while not a requirement, you can use your
+                university username to sign up for this application, for ease of recognition. However, for security
+                purposes, you should use a different password.</p>
+        </div>
+        <div class="col-md">
+            <div th:replace="fragments/alerts :: alerts"></div>
+            <form th:action="@{/register}" method="post" th:object="${user}">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" name="username" id="username" th:field="*{username}" required/>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('username')}">
+                        <span th:errors="*{username}"></span>
+                    </div>
+                    <br id="usernameValidationSpacer" hidden />
+                    <div id="usernameValidationAlert" class="alert alert-danger" role="alert" hidden>
+                        <span id="usernameValidationMessage">Text</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" class="form-control" name="fullName" id="fullName" th:field="*{fullName}" required/>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('fullName')}">
+                        <span th:errors="*{fullName}"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" name="email" id="email" th:field="*{email}" required/>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('email')}">
+                        <span th:errors="*{email}"></span>
+                    </div>
+                    <br id="emailValidationSpacer" hidden />
+                    <div id="emailValidationAlert" class="alert alert-danger" role="alert" hidden>
+                        <span id="emailValidationMessage">Text</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" name="password" id="password" th:field="*{password}" required/>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('password')}">
+                        <span th:errors="*{password}"></span>
+                    </div>
+                    <br id="passwordValidationSpacer" hidden />
+                    <div id="passwordValidationAlert" class="alert alert-danger" role="alert" hidden>
+                        <span id="passwordValidationMessage">Text</span>
+                    </div>
+                    <div id="passwordStrengthValidationAlert" class="alert alert-danger" role="alert" hidden>
+                        <span id="passwordStrengthValidationMessage">Text</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="passwordConfirm">Confirm Password</label>
+                    <input type="password" class="form-control" name="passwordConfirm" id="passwordConfirm" required/>
+                </div>
+                <div class="form-group">
+                    <label for="role">Select User Role</label>
+                    <select class="form-control custom-select" id="role" name="role" th:field="*{role}" required>
+                        <option value="STUDENT">Student</option>
+                        <option value="TUTOR">Tutor</option>
+                        <option value="PROVIDER">Member of Provider</option>
+                    </select>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('role')}">
+                        <span th:errors="*{role}"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-bottom-margin" id="submitButton">Register Account</button>
+                <a class="btn btn-secondary btn-block btn-bottom-margin" href="/">Cancel</a>
+                <p class="small text-justify">
+                    By registering, you agree to receive emails from the application. These emails will include
+                    important notifications, such as when a new message has been received, or any of your account
+                    details have been changed. You can freely disable these emails from your profile by clicking "Edit
+                    Account Details", and revoking the permission.
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+<span id="emailError" hidden>False</span>
+<span id="usernameError" hidden>False</span>
+<span id="passwordError" hidden>False</span>
+<span id="passwordStrengthError" hidden>False</span>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/submit-button-status.js"></script>
+<script src="/js/username-check.js"></script>
+<script src="/js/email-check.js"></script>
+<script src="/js/password-check.js"></script>
+<script src="/js/password-strength-check.js"></script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${profileUser.getUsername() + ' - Placements Management Web App'}"></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Profile</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row">
+        <div class="col-md text-center">
+            <!-- Default: Bootstrap Icons: person-circle (modified), https://icons.getbootstrap.com/icons/person-circle/.
+                 Copyright (c) 2019-2020 The Bootstrap Authors.
+                 Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+            <img class="rounded-circle" th:src="${'/users/' + profileUser.getUsername() + '/profilePicture'}" alt="Profile Picture" height="128" width="128" />
+            <h2 th:text="${profileUser.getFullName()}"></h2>
+            <p class="small" th:text="${profileUser.getUsername()}"></p>
+            <p><span class="font-weight-bold">Role: </span><span th:text="${profileUser.getRole().toString()}"></span>
+            </p>
+            <p class="text-break"><span class="font-weight-bold">Email: </span><span
+                    th:text="${profileUser.getEmail()}"></span></p>
+            <a class="btn btn-primary" th:href="${'mailto:' + profileUser.getEmail()}">
+                <!-- Bootstrap Icons: envelope-fill, https://icons.getbootstrap.com/icons/envelope-fill/.
+                     Copyright (c) 2019-2020 The Bootstrap Authors.
+                     Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-envelope-fill" viewBox="0 0 16 16">
+                    <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.586L16 11.801V4.697l-5.803 3.546z"/>
+                </svg>
+            </a>
+        </div>
+        <div class="col-md text-center">
+            <th:block th:if="${providerOpt.isPresent()}">
+                <h3>Member of Provider</h3>
+                <div class="card">
+                    <div class="card-header text-break text-center font-weight-bold" th:text="${providerOpt.get().getName()}">
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text" th:if="${providerOpt.get().getDescription().length() <= 100}" th:text="${providerOpt.get().getDescription()}"></p>
+                        <p class="card-text" th:unless="${providerOpt.get().getDescription().length() <= 100}" th:text="${providerOpt.get().getDescription().substring(0, 99) + '...'}"></p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <div class="row">
+                            <div class="col text-center">
+                                <p><span class="font-weight-bold" th:text="${providerOpt.get().getMembers().size()}"></span> member(s)</p>
+                            </div>
+                        </div>
+                        <a class="btn btn-primary" th:href="${'/providers/' + providerOpt.get().getId()}">View</a>
+                    </div>
+                </div>
+                <hr/>
+            </th:block>
+            <h2>Options</h2>
+            <p th:if="${profileUser != user && !user.getRole().toString().equals('ADMINISTRATOR')}">No options.</p>
+            <a class="btn btn-primary btn-block btn-bottom-margin" href="/account/edit" th:if="${profileUser == user}">Edit
+                Account Details</a>
+            <button th:if="${profileUser == user}" type="button" class="btn btn-primary btn-block btn-bottom-margin" data-toggle="modal"
+                    th:data-target="${'#profilePictureSet'}">Change Profile Picture
+            </button>
+            <th:block th:if="${user.getRole().toString().equals('ADMINISTRATOR')}">
+                <button type="button" class="btn btn-primary btn-block btn-bottom-margin" data-toggle="modal"
+                        th:data-target="${'#changeRole'}">Change Role
+                </button>
+                <button type="button" class="btn btn-primary btn-block btn-bottom-margin" data-toggle="modal"
+                        th:data-target="${'#deleteConfirm'}" th:if="${user != profileUser}">Delete User
+                </button>
+            </th:block>
+        </div>
+    </div>
+    <th:block th:if="${!placementList.isEmpty()}">
+        <hr/>
+        <div class="row">
+            <div class="col">
+                <p class="text-center"><span th:text="${profileUser.getFullName()}"></span> is a member of the following placements:</p>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+            <div class="col mb-4" th:each="placement: ${placementList}">
+                <div class="card h-100">
+                    <div class="card-header text-break text-center font-weight-bold" th:text="${placement.getTitle()}">
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text" th:if="${placement.getDescription().length() <= 100}" th:text="${placement.getDescription()}"></p>
+                        <p class="card-text" th:unless="${placement.getDescription().length() <= 100}" th:text="${placement.getDescription().substring(0, 99) + '...'}"></p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <a class="font-weight-bold" th:href="${'/providers/' + placement.getProvider().getId()}" th:text="${placement.getProvider().getName()}"></a>
+                            </div>
+                            <div class="col">
+                                <a class="btn btn-primary" th:href="${'/placements/' + placement.getId()}">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</div>
+<!-- ROLE CHANGE MODAL -->
+<div class="modal fade" id="changeRole" tabindex="-1" th:if="${user.getRole().toString().equals('ADMINISTRATOR')}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Role</h5>
+            </div>
+            <form th:action="${#request.getServletPath() + '/changeRole'}" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="role">New Role</label>
+                        <select class="form-control" name="role" id="role">
+                            <option value="STUDENT" th:selected="${profileUser.getRole().toString().equals('STUDENT')}">
+                                Student
+                            </option>
+                            <option value="GRADUATE" th:selected="${profileUser.getRole().toString().equals('GRADUATE')}">
+                                Graduate
+                            </option>
+                            <option value="TUTOR" th:selected="${profileUser.getRole().toString().equals('TUTOR')}">
+                                Tutor
+                            </option>
+                            <option value="PROVIDER"
+                                    th:selected="${profileUser.getRole().toString().equals('PROVIDER')}">Member of
+                                Provider
+                            </option>
+                            <option value="ADMINISTRATOR"
+                                    th:selected="${profileUser.getRole().toString().equals('ADMINISTRATOR')}">
+                                Administrator
+                            </option>
+                        </select>
+                        <br/>
+                        <div class="alert alert-warning" th:if="${profileUser.getRole().toString().equals('PROVIDER')}">
+                            The user currently has the "Member of Provider" role. Changing this will remove them from
+                            any provider they are currently a member of.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="changeRoleSubmit">Submit Role Change</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- DELETE USER CONFIRM MODAL -->
+<div class="modal fade" id="deleteConfirm" tabindex="-1"
+     th:if="${user.getRole().toString().equals('ADMINISTRATOR') && user != profileUser}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Permanently delete selected user?</h5>
+            </div>
+            <div class="modal-body">
+                This will permanently delete the selected user from the application, along with any entities they have
+                created. This is irreversible - if the user wants to rejoin, they will have to create a new account.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${#request.getServletPath() + '/delete'}" method="get">
+                    <button type="submit" class="btn btn-danger" id="deleteSubmitButton">Permanently Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- PROFILE PICTURE SET MODAL -->
+<div class="modal fade" id="profilePictureSet" tabindex="-1" th:if="${user == profileUser}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set Profile Picture</h5>
+            </div>
+            <form th:action="${#request.getServletPath() + '/changeProfilePicture'}" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="imageFile">Profile Image Upload</label>
+                        <input type="file" name="imageFile" id="imageFile" accept="image/png, image/jpeg, image/gif" />
+                        <br id="imageFileValidationSpacer" hidden />
+                        <div id="imageFileValidationAlert" class="alert alert-danger" role="alert" hidden>
+                            <span id="imageFileValidationMessage"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-warning" th:href="${'/users/' + profileUser.getUsername() + '/resetProfilePicture'}">Reset to Default</a>
+                    <button type="submit" class="btn btn-primary" id="profilePictureSetSubmit">Upload Image</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/files-image-check.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${'Placement #' + placementId + ' - Placements Management Web App'}"></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Placement</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row">
+        <div class="col-md">
+            <h2 class="text-center text-break" th:text="${placement.getTitle()}"></h2>
+            <p class="text-center small" th:text="${'#' + placement.getId()}"></p>
+            <a th:href="${'/providers/' + placement.getProvider().getId()}">
+                <p class="text-center font-weight-bold" th:text="${placement.getProvider().getName()}"></p>
+            </a>
+            <h3 class="text-center">Description</h3>
+            <p class="multiline text-justify" th:text="${placement.getDescription()}"></p>
+        </div>
+        <div class="col-md text-center">
+            <h3 class="text-center">Application Deadline</h3>
+            <p class="text-center" th:text="${placement.getApplicationDeadline().toString().replace('T', ', ')}"></p>
+            <div th:if="${placement.getApplicationDeadline().isBefore(now)}" class="alert alert-danger text-center"
+                 role="alert">
+                The application deadline has been surpassed. This placement is no longer accepting applications.
+            </div>
+            <h3 class="text-center">Start Date</h3>
+            <p class="text-center" th:text="${placement.getStartDate().toString().replace('T', ', ')}"></p>
+            <h3 class="text-center">End Date</h3>
+            <p class="text-center" th:text="${placement.getEndDate().toString().replace('T', ', ')}"></p>
+            <hr/>
+            <h2>Options</h2>
+            <a class="btn btn-primary btn-block btn-bottom-margin"
+               th:href="${'/placements/' + placementId + '/log'}">
+                Activity Log
+            </a>
+            <a class="btn btn-primary btn-block btn-bottom-margin"
+               th:href="${'/placements/' + placement.getId() + '/apply'}"
+               th:if="${placement.getApplicationDeadline().isAfter(now) && user.getRole().toString().equals('STUDENT')}">
+                Apply for Placement
+            </a>
+            <button type="button" class="btn btn-primary btn-block btn-bottom-margin" data-toggle="modal"
+                    data-target="#assignNewMember" th:if="${user.getRole().toString().equals('ADMINISTRATOR')}"
+                    id="assignMember">
+                Assign New Member
+            </button>
+            <button type="button" class="btn btn-primary btn-block btn-bottom-margin" data-toggle="modal"
+                    data-target="#deletePlacementConfirm" th:if="${user.getRole().name() == 'ADMINISTRATOR'}"
+                    id="deletePlacement">
+                Delete Placement
+            </button>
+            <a class="btn btn-primary btn-block btn-bottom-margin"
+               th:href="${'/placements/' + placement.getId() + '/edit'}"
+               th:if="${editPermissions}">
+                Edit Placement
+            </a>
+            <a class="btn btn-primary btn-block btn-bottom-margin"
+               th:href="${'/placements/' + placement.getId() + '/visits/new'}"
+               th:if="${user.getRole().toString().equals('TUTOR') && placement.getMembers().contains(user)}">
+                Schedule Placement Visit
+            </a>
+            <a class="btn btn-primary btn-block btn-bottom-margin"
+               th:href="${'/placements/' + placement.getId() + '/upload'}"
+               th:if="${user.getRole().name() == 'ADMINISTRATOR' || placement.getMembers().contains(user) || placement.getProvider().getMembers().contains(user)}">
+                Upload Documents
+            </a>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md">
+            <h2 class="text-center">Documents</h2>
+            <p class="text-center" th:unless="${user.getRole().toString().equals('ADMINISTRATOR') || placement.getMembers().contains(user)
+                                            || placement.getProvider().getMembers().contains(user)}">
+                You do not have permission to view the documents for this placement.
+            </p>
+            <th:block th:if="${user.getRole().toString().equals('ADMINISTRATOR') || placement.getMembers().contains(user)
+                                || placement.getProvider().getMembers().contains(user)}">
+                <p class="text-center" th:if="${placement.getDocuments().isEmpty()}">No documents.</p>
+                <div class="table-responsive">
+                    <table class="table table-hover" th:if="${placement.getDocuments().size() > 0}">
+                        <thead>
+                        <tr>
+                            <th scope="col">Title</th>
+                            <th scope="col">Owner</th>
+                            <th scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="document : ${placement.getDocuments()}">
+                            <th class="clickable"
+                                th:href="${'/placements/' + placementId + '/documents/' + document.getId()}" scope="row"
+                                th:text="${document.getName()}"></th>
+                            <td class="clickable"
+                                th:href="${'/placements/' + placementId + '/documents/' + document.getId()}"
+                                th:unless="${document.getOwner() == null}"
+                                th:text="${document.getOwner().getUsername()}"></td>
+                            <td>
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        th:data-target="${'#deleteConfirm' + document.getId()}"
+                                        th:unless="${document.getOwner() == null}"
+                                        th:if="${document.getOwner() == user || user.getRole().name() == 'ADMINISTRATOR'}"
+                                        th:id="${'deleteDocument' + document.getId()}">X
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </th:block>
+        </div>
+        <div class="col-md">
+            <h2 class="text-center">Visits</h2>
+            <p class="text-center" th:if="${placement.getVisits().isEmpty()}">No scheduled visits.</p>
+            <div class="table-responsive">
+                <table class="table table-hover" th:if="${placement.getVisits().size() > 0}">
+                    <thead>
+                    <tr>
+                        <th scope="col">Date & Time</th>
+                        <th scope="col">Organiser</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="visit: ${placement.getVisits()}">
+                        <th class="clickable" th:href="${'/placements/' + placementId + '/visits/' + visit.getId()}"
+                            th:text="${visit.getVisitDateTime().toLocalDate().toString() + ', ' + visit.getVisitDateTime().toLocalTime().toString()}"></th>
+                        <td class="clickable" th:href="${'/placements/' + placementId + '/visits/' + visit.getId()}"
+                            th:text="${visit.getOrganiser().getFullName() + ' (' + visit.getOrganiser().getUsername() + ')'}"></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    th:data-target="${'#deleteVisitConfirm' + visit.getId()}"
+                                    th:if="${user == visit.getOrganiser() || user.getRole().name() == 'ADMINISTRATOR'}"
+                                    th:id="${'deleteVisit' + visit.getId()}">X
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col">
+            <h2 class="text-center">Members</h2>
+            <p class="text-center" th:if="${placement.getMembers().isEmpty()}">No members.</p>
+            <div class="table-responsive" th:if="${!placement.getMembers().isEmpty()}">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Full Name</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Email</th>
+                        <th scope="col" th:if="${editPermissions}"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="member : ${placement.getMembers()}">
+                        <td class="clickable vertical-align-middle profile-image-cell"
+                            th:href="${'/users/' + member.getUsername()}">
+                            <img class="rounded-circle" th:src="${'/users/' + member.getUsername() + '/profilePicture'}"
+                                 th:alt="${'Profile picture for ' + member.getUsername()}" height="32"/>
+                        </td>
+                        <th class="clickable vertical-align-middle" th:href="${'/users/' + member.getUsername()}" scope="row"
+                            th:text="${member.getUsername()}"></th>
+                        <td class="clickable vertical-align-middle" th:href="${'/users/' + member.getUsername()}"
+                            th:text="${member.getFullName()}"></td>
+                        <td class="clickable vertical-align-middle" th:href="${'/users/' + member.getUsername()}"
+                            th:text="${member.getRole().name()}"></td>
+                        <td class="clickable vertical-align-middle text-break" th:href="${'/users/' + member.getUsername()}"
+                            th:text="${member.getEmail()}"></td>
+                        <td class="vertical-align-middle">
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    th:data-target="${'#removeUserConfirm' + member.getUsername()}"
+                                    th:if="${editPermissions}" th:id="${'removeUser' + member.getUsername()}">X
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ASSIGN MEMBER TO PLACEMENT MODAL -->
+<div class="modal fade" th:if="${user.getRole().toString().equals('ADMINISTRATOR')}" id="assignNewMember" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign New Member</h5>
+            </div>
+            <form th:action="@{'/placements/' + ${placementId} + '/assign-user'}" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="addMemberUsername">Select User</label>
+                        <select class="form-control custom-select" id="addMemberUsername" name="username" required>
+                            <option th:each="student : ${students}" th:value="${student.getUsername()}"
+                                    th:text="${student.getFullName() + ' (' + student.getUsername() + ', ' +
+                                student.getRole().name() +')'}"></option>
+                            <option th:each="tutor : ${tutors}" th:value="${tutor.getUsername()}"
+                                    th:text="${tutor.getFullName() + ' (' + tutor.getUsername() + ', ' +
+                                tutor.getRole().name() + ')'}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitButton">Assign Selected User to Placement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM DELETE DOCUMENT MODALS -->
+<div class="modal fade" th:each="document : ${placement.getDocuments()}" th:id="${'deleteConfirm' + document.getId()}"
+     tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete selected document?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the selected document <span th:text="${document.getName()}"></span>?
+                    This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/placements/' + placementId + '/documents/' + document.getId() + '/delete'}"
+                      method="post">
+                    <button type="submit" class="btn btn-danger" th:id="${'deleteDocument' + document.getId()}">Delete
+                        Document
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM DELETE VISIT MODALS -->
+<div class="modal fade" th:each="visit : ${placement.getVisits()}" th:id="${'deleteVisitConfirm' + visit.getId()}"
+     tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete selected document?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the selected visit at <span
+                        th:text="${visit.getVisitDateTime()}"></span>
+                    for placement '<span th:text="${placement.getTitle()}"></span>'?
+                    This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/visits/' + visit.getId() + '/delete'}" method="post">
+                    <button type="submit" class="btn btn-danger" th:id="${'deleteVisit' + visit.getId()}">Delete
+                        Visit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM REMOVE USER MODALS -->
+<div class="modal fade" th:each="member: ${placement.getMembers()}"
+     th:id="${'removeUserConfirm' + member.getUsername()}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove selected user?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove the selected user '<span
+                        th:text="${member.getFullName() + ' (' + member.getUsername() + ')'}"></span>'
+                    from placement '<span th:text="${placement.getTitle()}"></span>'?
+                    This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/placements/' + placementId + '/remove-user'}" method="post">
+                    <input type="hidden" id="username" name="username" th:value="${member.getUsername()}"/>
+                    <button type="submit" class="btn btn-danger" th:id="${'removeUser' + member.getUsername()}">Remove
+                        User
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- DELETE PLACEMENT MODAL -->
+<div class="modal fade" th:if="${user.getRole().toString().equals('ADMINISTRATOR')}" id="deletePlacementConfirm"
+     tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete selected placement?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the selected placement? This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/placements/' + placementId + '/delete'}" method="post">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Delete Placement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/request-row-link.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

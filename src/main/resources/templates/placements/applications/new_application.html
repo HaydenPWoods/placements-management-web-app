@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>New Placement Application - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">New Placement Application</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row">
+        <div class="col-md text-center">
+            <!-- Bootstrap Icons: plus-circle-fill, https://icons.getbootstrap.com/icons/plus-circle-fill/.
+                 Copyright (c) 2019-2020 The Bootstrap Authors.
+                 Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#0067B0" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+            </svg>
+            <hr/>
+            <p>Use the form to submit your application details, and create a placement application. Documents can be
+            uploaded through the "Document Upload" field - please, no executable files, and no upload exceeding 10MB.</p>
+            <p>You are applying for the following placement:</p>
+            <div class="card">
+                <div class="card-header text-break text-center font-weight-bold" th:text="${placement.getTitle()}">
+                </div>
+                <div class="card-body">
+                    <p class="card-text" th:if="${placement.getDescription().length() <= 100}" th:text="${placement.getDescription()}"></p>
+                    <p class="card-text" th:unless="${placement.getDescription().length() <= 100}" th:text="${placement.getDescription().substring(0, 99) + '...'}"></p>
+                </div>
+                <div class="card-footer text-center">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <a class="font-weight-bold" th:href="${'/providers/' + placement.getProvider().getId()}" th:text="${placement.getProvider().getName()}"></a>
+                        </div>
+                        <div class="col">
+                            <a class="btn btn-primary" th:href="${'/placements/' + placement.getId()}">View</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr/>
+        </div>
+        <div class="col-md">
+            <form th:action="${'/placements/' + placementId + '/apply'}" id="submissionForm" method="post" enctype="multipart/form-data" th:object="${placementApplicationDTO}">
+                <div class="form-group">
+                    <label for="details">Application Details</label>
+                    <textarea rows="8" cols="50" wrap="hard" class="form-control" name="details" id="details"
+                              th:field="*{details}" required></textarea>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('details')}">
+                        <span th:errors="*{details}"></span>
+                    </div>
+                </div>
+                <div class="form-group" id="filesGroup">
+                    <label for="files">Document Upload</label>
+                    <input type="file" name="files" id="files" multiple/>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('files')}">
+                        <span th:errors="*{files}"></span>
+                    </div>
+                    <br id="filesValidationSpacer" hidden />
+                    <div id="filesValidationAlert" class="alert alert-danger" role="alert" hidden>
+                        <span id="filesValidationMessage">Text</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-bottom-margin" id="submitButton">Send Placement Application</button>
+                <a class="btn btn-secondary btn-block btn-bottom-margin" th:href="${'/placements/' + placementId}">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<span id="filesError" hidden>False</span>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/submit-button-status.js"></script>
+<script src="/js/files-size-check.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

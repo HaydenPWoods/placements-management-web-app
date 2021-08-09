@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Authorisation Requests - Placements Management Web App</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Authorisation Requests</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row">
+        <div class="col-md text-center" th:switch="${user.getRole().toString()}">
+            <p th:case="${'ADMINISTRATOR'}">Showing all authorisation requests to be approved.</p>
+            <p th:case="${'TUTOR'}">Showing all authorisation requests you have been assigned to.</p>
+            <p th:case="*">Showing all authorisation requests you have made.</p>
+        </div>
+        <div class="col-md" th:if="${user.getRole().toString().equals('STUDENT')}">
+            <a href="/requests/new" class="btn btn-primary btn-block btn-bottom-margin">Create New Request</a>
+        </div>
+    </div>
+    <div class="row" th:if="${!user.getRole().toString().equals('STUDENT') && !user.getRole().toString().equals('GRADUATE')}">
+        <div class="col">
+            <h2 class="text-center">Requests You Need to Approve</h2>
+        </div>
+    </div>
+    <div class="row" th:if="${requestsList.isEmpty()}">
+        <div class="col">
+            <p class="text-center">No requests.</p>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3" th:unless="${requestsList.isEmpty()}">
+        <div class="col mb-4" th:each="request : ${requestsList}">
+            <div class="card h-100">
+                <div class="card-header text-break text-center font-weight-bold" th:text="${request.getTitle()}">
+                </div>
+                <div class="card-body">
+                    <p class="card-text" th:if="${request.getDetails().length() <= 100}"
+                       th:text="${request.getDetails()}"></p>
+                    <p class="card-text" th:unless="${request.getDetails().length() <= 100}"
+                       th:text="${request.getDetails().substring(0, 99) + '...'}"></p>
+                    <div class="row">
+                        <div class="col text-center">
+                            <p>
+                                <span>Tutor: </span>
+                                <!-- Bootstrap Icons: check-circle-fill, https://icons.getbootstrap.com/icons/check-circle-fill/.
+                                Copyright (c) 2019-2020 The Bootstrap Authors.
+                                Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                <svg th:if="${request.isApprovedByTutor()}" xmlns="http://www.w3.org/2000/svg"
+                                     width="16" height="16" fill="green" class="bi bi-check-circle-fill"
+                                     viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                </svg>
+                                <!-- Bootstrap Icons: x-circle-fill, https://icons.getbootstrap.com/icons/x-circle-fill/.
+                                Copyright (c) 2019-2020 The Bootstrap Authors.
+                                Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                <svg th:unless="${request.isApprovedByTutor()}" xmlns="http://www.w3.org/2000/svg"
+                                     width="16" height="16" fill="red" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                </svg>
+                            </p>
+                        </div>
+                        <div class="col text-center">
+                            <p>
+                                <span>Admin: </span>
+                                <!-- Bootstrap Icons: check-circle-fill, https://icons.getbootstrap.com/icons/check-circle-fill/.
+                                Copyright (c) 2019-2020 The Bootstrap Authors.
+                                Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                <svg th:if="${request.isApprovedByAdministrator()}" xmlns="http://www.w3.org/2000/svg"
+                                     width="16" height="16" fill="green" class="bi bi-check-circle-fill"
+                                     viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                </svg>
+                                <!-- Bootstrap Icons: x-circle-fill, https://icons.getbootstrap.com/icons/x-circle-fill/.
+                                Copyright (c) 2019-2020 The Bootstrap Authors.
+                                Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                <svg th:unless="${request.isApprovedByAdministrator()}"
+                                     xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red"
+                                     class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                </svg>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <div class="row">
+                        <div class="col text-center">
+                            <p><span class="font-weight-bold text-break" th:text="${request.getProviderName()}"></span>
+                            </p>
+                        </div>
+                        <div class="col text-center">
+                            <p><span class="font-weight-bold text-break"
+                                     th:text="${requestByStudent.get(request).getUsername()}"></span></p>
+                        </div>
+                    </div>
+                    <a class="btn btn-primary" th:href="${'/requests/' + request.getId()}">View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block th:if="${!user.getRole().toString().equals('STUDENT') && !user.getRole().toString().equals('GRADUATE')}">
+        <hr/>
+        <div class="row">
+            <div class="col text-center">
+                <h2 th:switch="${user.getRole().toString()}">Requests Needing Approval from
+                    <span th:case="${'ADMINISTRATOR'}">the Tutor</span>
+                    <span th:case="${'TUTOR'}">an Administrator</span>
+                    <span th:case="*">Another User</span>
+                </h2>
+            </div>
+        </div>
+        <div class="row" th:if="${requestsListSecondary != null && requestsListSecondary.isEmpty()}">
+            <div class="col text-center">
+                <p>No requests.</p>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3"
+             th:if="${requestsListSecondary != null && !requestsListSecondary.isEmpty()}">
+            <div class="col mb-4" th:each="request : ${requestsListSecondary}">
+                <div class="card h-100">
+                    <div class="card-header text-break text-center font-weight-bold" th:text="${request.getTitle()}">
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text" th:if="${request.getDetails().length() <= 100}"
+                           th:text="${request.getDetails()}"></p>
+                        <p class="card-text" th:unless="${request.getDetails().length() <= 100}"
+                           th:text="${request.getDetails().substring(0, 99) + '...'}"></p>
+                        <div class="row">
+                            <div class="col text-center">
+                                <p>
+                                    <span>Tutor: </span>
+                                    <!-- Bootstrap Icons: check-circle-fill, https://icons.getbootstrap.com/icons/check-circle-fill/.
+                                    Copyright (c) 2019-2020 The Bootstrap Authors.
+                                    Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                    <svg th:if="${request.isApprovedByTutor()}" xmlns="http://www.w3.org/2000/svg"
+                                         width="16" height="16" fill="green" class="bi bi-check-circle-fill"
+                                         viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                    </svg>
+                                    <!-- Bootstrap Icons: x-circle-fill, https://icons.getbootstrap.com/icons/x-circle-fill/.
+                                    Copyright (c) 2019-2020 The Bootstrap Authors.
+                                    Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                    <svg th:unless="${request.isApprovedByTutor()}" xmlns="http://www.w3.org/2000/svg"
+                                         width="16" height="16" fill="red" class="bi bi-x-circle-fill"
+                                         viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                    </svg>
+                                </p>
+                            </div>
+                            <div class="col text-center">
+                                <p>
+                                    <span>Admin: </span>
+                                    <!-- Bootstrap Icons: check-circle-fill, https://icons.getbootstrap.com/icons/check-circle-fill/.
+                                    Copyright (c) 2019-2020 The Bootstrap Authors.
+                                    Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                    <svg th:if="${request.isApprovedByAdministrator()}"
+                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green"
+                                         class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                    </svg>
+                                    <!-- Bootstrap Icons: x-circle-fill, https://icons.getbootstrap.com/icons/x-circle-fill/.
+                                    Copyright (c) 2019-2020 The Bootstrap Authors.
+                                    Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                    <svg th:unless="${request.isApprovedByAdministrator()}"
+                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red"
+                                         class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                    </svg>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <div class="row">
+                            <div class="col text-center">
+                                <p><span class="font-weight-bold text-break"
+                                         th:text="${request.getProviderName()}"></span></p>
+                            </div>
+                            <div class="col text-center">
+                                <p><span class="font-weight-bold text-break"
+                                         th:text="${requestByStudent.get(request).getUsername()}"></span></p>
+                            </div>
+                        </div>
+                        <a class="btn btn-primary" th:href="${'/requests/' + request.getId()}">View</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+    <th:block th:if="${user.getRole().toString().equals('ADMINISTRATOR')}">
+        <hr/>
+        <div class="row">
+            <div class="col text-center">
+                <h2>Approved Requests</h2>
+            </div>
+        </div>
+        <div class="row" th:if="${requestsListTertiary != null && requestsListTertiary.isEmpty()}">
+            <div class="col text-center">
+                <p>No approved requests.</p>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3" th:if="${requestsListTertiary != null && !requestsListTertiary.isEmpty()}">
+            <div class="col mb-4" th:each="request : ${requestsListTertiary}">
+                <div class="card h-100">
+                    <div class="card-header text-break text-center font-weight-bold" th:text="${request.getTitle()}">
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text" th:if="${request.getDetails().length() <= 100}"
+                           th:text="${request.getDetails()}"></p>
+                        <p class="card-text" th:unless="${request.getDetails().length() <= 100}"
+                           th:text="${request.getDetails().substring(0, 99) + '...'}"></p>
+                        <div class="row">
+                            <div class="col text-center">
+                                <p>
+                                    <span>Tutor: </span>
+                                    <!-- Bootstrap Icons: check-circle-fill, https://icons.getbootstrap.com/icons/check-circle-fill/.
+                                    Copyright (c) 2019-2020 The Bootstrap Authors.
+                                    Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                    <svg th:if="${request.isApprovedByTutor()}" xmlns="http://www.w3.org/2000/svg"
+                                         width="16" height="16" fill="green" class="bi bi-check-circle-fill"
+                                         viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                    </svg>
+                                    <!-- Bootstrap Icons: x-circle-fill, https://icons.getbootstrap.com/icons/x-circle-fill/.
+                                    Copyright (c) 2019-2020 The Bootstrap Authors.
+                                    Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                    <svg th:unless="${request.isApprovedByTutor()}" xmlns="http://www.w3.org/2000/svg"
+                                         width="16" height="16" fill="red" class="bi bi-x-circle-fill"
+                                         viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                    </svg>
+                                </p>
+                            </div>
+                            <div class="col text-center">
+                                <p>
+                                    <span>Admin: </span>
+                                    <!-- Bootstrap Icons: check-circle-fill, https://icons.getbootstrap.com/icons/check-circle-fill/.
+                                    Copyright (c) 2019-2020 The Bootstrap Authors.
+                                    Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                    <svg th:if="${request.isApprovedByAdministrator()}"
+                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green"
+                                         class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                    </svg>
+                                    <!-- Bootstrap Icons: x-circle-fill, https://icons.getbootstrap.com/icons/x-circle-fill/.
+                                    Copyright (c) 2019-2020 The Bootstrap Authors.
+                                    Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                                    <svg th:unless="${request.isApprovedByAdministrator()}"
+                                         xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red"
+                                         class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                    </svg>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <div class="row">
+                            <div class="col text-center">
+                                <p><span class="font-weight-bold text-break"
+                                         th:text="${request.getProviderName()}"></span></p>
+                            </div>
+                            <div class="col text-center">
+                                <p><span class="font-weight-bold text-break"
+                                         th:text="${requestByStudent.get(request).getUsername()}"></span></p>
+                            </div>
+                        </div>
+                        <a class="btn btn-primary" th:href="${'/requests/' + request.getId()}">View</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/request-row-link.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

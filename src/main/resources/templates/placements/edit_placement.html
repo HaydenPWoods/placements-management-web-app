@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${'Edit Placement #' + placementId + ' - Placements Management Web App'}"></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Edit Placement Details</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row">
+        <div class="col-md text-center">
+            <!-- Bootstrap Icons: pencil-square, https://icons.getbootstrap.com/icons/pencil-square/.
+                 Copyright (c) 2019-2020 The Bootstrap Authors.
+                 Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#0067B0" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+            </svg>
+            <hr/>
+            <p>
+                Use the form to edit the details for the current placement,
+                <span class="font-weight-bold" th:text="${placement.getTitle()}"></span> from
+                <span class="font-weight-bold" th:text="${placement.getProvider().getName()}"></span>.
+            </p>
+        </div>
+        <div class="col-md">
+            <form th:action="${'/placements/' + placementId + '/edit'}" method="post" th:object="${editPlacementDTO}">
+                <div class="form-group" th:if="${user.getRole().toString().equals('ADMINISTRATOR')}">
+                    <label for="title">Placement Title</label>
+                    <input type="text" class="form-control" name="title" id="title" th:field="*{title}"/>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('title')}">
+                        <span th:errors="*{title}"></span>
+                    </div>
+                </div>
+                <div class="form-group" th:if="${user.getRole().toString().equals('ADMINISTRATOR')}">
+                    <label for="description">Placement Description</label>
+                    <textarea cols="50" wrap="hard" class="form-control" name="description" id="description"
+                              th:field="*{description}"></textarea>
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('description')}">
+                        <span th:errors="*{description}"></span>
+                    </div>
+                </div>
+                <div class="form-group" th:if="${user.getRole().toString().equals('ADMINISTRATOR')}">
+                    <label for="applicationDeadline">Application Deadline</label>
+                    <input type="date" class="form-control" name="applicationDeadline" id="applicationDeadline" th:field="*{applicationDeadline}" />
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('applicationDeadline')}">
+                        <span th:errors="*{applicationDeadline}"></span>
+                    </div>
+                </div>
+                <div class="form-group" th:if="${user.getRole().toString().equals('ADMINISTRATOR')}">
+                    <label for="applicationDeadlineTime">Application Deadline Time</label>
+                    <input type="time" min="00:00" max="23:59" class="form-control" name="applicationDeadlineTime" id="applicationDeadlineTime" th:field="*{applicationDeadlineTime}" />
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('applicationDeadlineTime')}">
+                        <span th:errors="*{applicationDeadlineTime}"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Placement Start Date</label>
+                    <input type="date" class="form-control" name="startDate" id="startDate" th:field="*{startDate}" />
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('startDate')}">
+                        <span th:errors="*{startDate}"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">Placement End Date</label>
+                    <input type="date" class="form-control" name="endDate" id="endDate" th:field="*{endDate}" />
+                    <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('endDate')}">
+                        <span th:errors="*{endDate}"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-bottom-margin" id="submitButton">Update Placement Details</button>
+                <a class="btn btn-secondary btn-block btn-bottom-margin" th:href="${'/placements/' + placement.getId()}">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

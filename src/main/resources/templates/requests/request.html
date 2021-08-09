@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${'Authorisation Request #' + request.getId() + ' - Placements Management Web App'}"></title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<nav th:replace="fragments/navigation :: navigation"></nav>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            <h1 class="text-center">Authorisation Request</h1>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <hr/>
+    <div class="row">
+        <div class="col-md">
+            <h2 class="text-center">Request Details</h2>
+            <h3 class="text-center">Placement Title</h3>
+            <p class="text-center" th:text="${request.getTitle()}"></p>
+            <hr/>
+            <h3 class="text-center">Placement Details</h3>
+            <p class="multiline text-break text-justify" th:text="${request.getDetails()}"></p>
+            <hr/>
+            <h2 class="text-center">Provider Details</h2>
+            <p class="text-center font-weight-bold" th:text="${request.getProviderName()}"></p>
+            <p class="text-center" th:text="${request.getProviderAddressLine1()}"></p>
+            <p class="text-center"
+               th:if="${request.getProviderAddressLine2() != null && !request.getProviderAddressLine2().equals('')}"
+               th:text="${request.getProviderAddressLine2()}"></p>
+            <p class="text-center" th:text="${request.getProviderAddressCity()}"></p>
+            <p class="text-center" th:text="${request.getProviderAddressPostcode()}"></p>
+            <hr/>
+            <h3 class="text-center">Approval Status</h3>
+            <div class="row text-center">
+                <div class="col">
+                    <p class="font-weight-bold">Tutor</p>
+                    <!-- Bootstrap Icons: check-circle-fill, https://icons.getbootstrap.com/icons/check-circle-fill/.
+                         Copyright (c) 2019-2020 The Bootstrap Authors.
+                         Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                    <svg th:if="${request.isApprovedByTutor()}" xmlns="http://www.w3.org/2000/svg" width="16"
+                         height="16" fill="green" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    <!-- Bootstrap Icons: x-circle-fill, https://icons.getbootstrap.com/icons/x-circle-fill/.
+                         Copyright (c) 2019-2020 The Bootstrap Authors.
+                         Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                    <svg th:unless="${request.isApprovedByTutor()}" xmlns="http://www.w3.org/2000/svg" width="16"
+                         height="16" fill="red" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                    </svg>
+                </div>
+                <div class="col">
+                    <p class="font-weight-bold">Admin</p>
+                    <!-- Bootstrap Icons: check-circle-fill, https://icons.getbootstrap.com/icons/check-circle-fill/.
+                         Copyright (c) 2019-2020 The Bootstrap Authors.
+                         Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                    <svg th:if="${request.isApprovedByAdministrator()}" xmlns="http://www.w3.org/2000/svg" width="16"
+                         height="16" fill="green" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    <!-- Bootstrap Icons: x-circle-fill, https://icons.getbootstrap.com/icons/x-circle-fill/.
+                         Copyright (c) 2019-2020 The Bootstrap Authors.
+                         Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                    <svg th:unless="${request.isApprovedByAdministrator()}" xmlns="http://www.w3.org/2000/svg"
+                         width="16" height="16" fill="red" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="col-md text-center">
+            <h3>Start Date</h3>
+            <p th:unless="${request.getStartDate() == null}" th:text="${request.getStartDate().toString()}"></p>
+            <p th:if="${request.getStartDate() == null}">-</p>
+            <h3>End Date</h3>
+            <p th:unless="${request.getEndDate() == null}" th:text="${request.getEndDate().toString()}"></p>
+            <p th:if="${request.getEndDate() == null}">-</p>
+            <hr/>
+            <h3>Request By</h3>
+            <div class="card text-center">
+                <div class="card-header font-weight-bold" th:text="${requestBy.getFullName()}"></div>
+                <div class="card-body">
+                    <p class="card-text" th:text="${requestBy.getUsername()}"></p>
+                    <p class="card-text" th:text="${requestBy.getRole().toString()}"></p>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary" th:href="${'/users/' + requestBy.getUsername()}">View Profile</a>
+                </div>
+            </div>
+            <hr/>
+            <h3>Assigned Tutor</h3>
+            <div class="card text-center">
+                <div class="card-header font-weight-bold" th:text="${request.getTutor().getFullName()}"></div>
+                <div class="card-body">
+                    <p class="card-text" th:text="${request.getTutor().getUsername()}"></p>
+                    <p class="card-text" th:text="${request.getTutor().getRole().toString()}"></p>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary" th:href="${'/users/' + request.getTutor().getUsername()}">View
+                        Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md">
+            <h2 class="text-center">Supporting Documents</h2>
+            <p class="text-center" th:if="${request.getSupportingDocs().isEmpty()}">No supporting documents.</p>
+            <div class="table-responsive-sm">
+                <table class="table table-hover" th:if="${request.getSupportingDocs().size() > 0}">
+                    <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="document : ${request.getSupportingDocs()}">
+                        <th class="clickable"
+                            th:href="${'/requests/' + authRequestId + '/documents/' + document.getId()}" scope="row"
+                            th:text="${document.getName()}"></th>
+                        <td class="clickable"
+                            th:href="${'/requests/' + authRequestId + '/documents/' + document.getId()}"
+                            th:unless="${document.getOwner() == null}"
+                            th:text="${document.getOwner().getUsername()}"></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    th:data-target="${'#deleteConfirm' + document.getId()}"
+                                    th:unless="${document.getOwner() == null}"
+                                    th:if="${document.getOwner() == user || user.getRole().name() == 'ADMINISTRATOR'}"
+                                    th:id="${'deleteDocument' + document.getId()}">X
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md text-center">
+            <h2>Options</h2>
+            <button type="button" class="btn btn-primary btn-block btn-bottom-margin" data-toggle="modal"
+                    data-target="#approveConfirm"
+                    th:if="${user.getRole().name() == 'ADMINISTRATOR' || (user.getRole().name() == 'TUTOR' && user == request.getTutor())}"
+                    id="approve">Approve Request as <span th:text="${user.getRole().name()}"></span></button>
+            <button type="button" class="btn btn-primary btn-block btn-bottom-margin" data-toggle="modal"
+                    data-target="#deleteRequestConfirm"
+                    th:if="${user.getRole().name() == 'ADMINISTRATOR' || user == requestBy}"
+                    id="deleteRequest">Delete Request
+            </button>
+            <a class="btn btn-primary btn-block btn-bottom-margin" th:href="${'/requests/' + request.getId() + '/log'}">Activity
+                Log</a>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM DELETE DOCUMENT MODALS -->
+<div class="modal fade" th:each="document : ${request.getSupportingDocs()}"
+     th:id="${'deleteConfirm' + document.getId()}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete selected document?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the selected document <span th:text="${document.getName()}"></span>?
+                    This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/requests/' + authRequestId + '/documents/' + document.getId() + '/delete'}"
+                      method="post">
+                    <button type="submit" class="btn btn-danger" th:id="${'deleteDocument' + document.getId()}">Delete
+                        Document
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- CONFIRM APPROVAL MODAL -->
+<div class="modal fade" id="approveConfirm" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve selected application?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to approve the selected authorisation request as <span
+                        th:text="${user.getRole().name()}"></span>?
+                    This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/requests/' + authRequestId + '/approve'}" method="post">
+                    <button type="submit" class="btn btn-primary" id="approveButton">Approve</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- DELETE REQUEST MODAL -->
+<div class="modal fade" id="deleteRequestConfirm" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete selected authorisation request?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the selected authorisation request? This action is irreversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form th:action="${'/requests/' + authRequestId + '/delete'}" method="post">
+                    <button type="submit" class="btn btn-danger" id="deleteButton">Delete Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="/js/jquery-3.5.1.min.js"></script>
+<script src="/js/bootstrap.bundle.min.js"></script>
+<script src="/js/request-row-link.js"></script>
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-messaging.js"></script>
+<script src="/firebase-config.js"></script>
+<script src="/js/firebase-messaging.js"></script>
+</body>
+</html>

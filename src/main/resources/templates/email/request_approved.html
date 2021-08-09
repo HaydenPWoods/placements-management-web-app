@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Authorisation Request Approved - Placements Management Web App</title>
+</head>
+<body>
+<table style="width: 600px; margin-left: auto; margin-right: auto">
+    <tr>
+        <td>
+            <a th:href="${ACTION_URL}">
+                <!-- Bootstrap Icons: briefcase-fill, https://icons.getbootstrap.com/icons/briefcase-fill/.
+                     Copyright (c) 2019-2020 The Bootstrap Authors.
+                     Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+                <img src="https://i.postimg.cc/dQgNdb05/email-header.png" alt="Placements Management Web App"/>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: center">
+            <!-- Bootstrap Icons: check-circle-fill (modified), https://icons.getbootstrap.com/icons/check-circle-fill/.
+                 Copyright (c) 2019-2020 The Bootstrap Authors.
+                 Licensed under the MIT License (https://github.com/twbs/icons/blob/main/LICENSE.md). -->
+            <img src="https://i.postimg.cc/yYFpb8Zx/check-circle-fill.png" height="64" width="64" alt="Checkmark" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <h1 style="font-family: Arial, sans-serif; color: #363636; text-align: center">Authorisation Request Approved!</h1>
+            <p style="font-family: Arial, sans-serif; color: #363636">
+                Hello, <span th:text="${recipient.getFullName()}">USER</span>.
+            </p>
+            <p style="font-family: Arial, sans-serif; color: #363636">
+                The request you made for the placement "<span th:text="${request.getTitle()}"></span>" from the provider
+                "<span th:text="${request.getProviderName()}"></span>" has been fully approved by the assigned tutor
+                <span th:text="${request.getTutor().getFullName()}"></span>, and the administrator. The placement has been
+                automatically created, and you have been added as a member.
+            </p>
+            <p style="font-family: Arial, sans-serif; color: #363636">
+                This placement will now be listed at the top of the "Placements" page, as a placement you are a member
+                of, for easy access. You can now view and upload documents related to this placement, and contact other
+                users involved with this placement, through the application.
+            </p>
+            <a style="font-family: Arial, sans-serif; padding: 5px; background-color: #0067B0; color: #ffffff" th:href="${ACTION_URL}">Login</a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <small style="font-family: Arial, sans-serif; color: #363636">
+                If you no longer wish to receive these emails, you can opt-out by logging in to your account, going to
+                your profile, clicking "Edit Account Details", and revoking the permission.
+            </small>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
